@@ -1,133 +1,96 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import connectDB from '@/lib/mongodb';
-import Product from '@/lib/models/Product';
-import { notFound } from 'next/navigation';
+import dbConnect from '../../../lib/mongoose';
+import Product from '../../../lib/models/Product';
 
-// Enable Incremental Static Regeneration (ISR)
-// Revalidate every 60 seconds
-export const revalidate = 60;
+export const revalidate = 60; // ISR - Regenerate every 60 seconds
 
-// Generate static params for all products at build time
+// ✅ Pre-generate static params for each product (for SSG + ISR)
 export async function generateStaticParams() {
-  try {
-    await connectDB();
-    const products = await Product.find({}).select('slug').lean();
-    
-    return products.map((product) => ({
-      slug: product.slug,
-    }));
-  } catch (error) {
-    console.error('Error generating static params:', error);
-    return [];
-  }
+  await dbConnect();
+  const products = await Product.find({}, 'slug'); // only fetch slug field
+  return products.map((p) => ({
+    slug: p.slug,
+  }));
 }
 
-// Generate metadata for SEO
-export async function generateMetadata({ params }) {
-  const { slug } = params;
-  
-  try {
-    await connectDB();
-    const product = await Product.findOne({ slug }).lean();
-    
-    if (!product) {
-      return {
-        title: 'Product Not Found',
-      };
-    }
-    
-    return {
-      title: `${product.name} - E-Commerce Store`,
-      description: product.description,
-    };
-  } catch (error) {
-    return {
-      title: 'Product - E-Commerce Store',
-    };
-  }
-}
+// ✅ Product detail page
+export default async function ProductPage({ params }) {
+  await dbConnect();
 
-// Fetch product data
-async function getProduct(slug) {
-  try {
-    await connectDB();
-    const product = await Product.findOne({ slug }).lean();
-    
-    if (!product) {
-      return null;
-    }
-    
-    return {
-      ...product,
-      _id: product._id.toString(),
-      createdAt: product.createdAt.toISOString(),
-      updatedAt: product.updatedAt.toISOString(),
-      lastUpdated: product.lastUpdated.toISOString(),
-    };
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    return null;
-  }
-}
+  // In Next.js App Router, params can sometimes be a promise, so await it safely
+  const { slug } = await params;
 
-export default async function ProductDetailPage({ params }) {
-  const { slug } = params;
-  const product = await getProduct(slug);
+  // Fetch the product by slug
+  const product = await Product.findOne({ slug }).lean();
 
+  // Handle not found
   if (!product) {
-    notFound();
-  }
-
-  const isLowStock = product.inventory < 10;
-  const isOutOfStock = product.inventory === 0;
-  const lastUpdatedDate = new Date(product.lastUpdated).toLocaleString();
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 text-sm">
-        <Link href="/" className="text-primary-600 hover:underline">
-          Home
-        </Link>
-        <span className="mx-2 text-gray-400">/</span>
-        <span className="text-gray-600">{product.name}</span>
-      </nav>
-
-      {/* ISR Info Badge */}
-      <div className="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-4">
-        <div className="flex items-center space-x-2">
-          <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-          <span className="text-purple-800 text-sm">
-            <strong>ISR (Incremental Static Regeneration):</strong> This page regenerates every 60 seconds
-          </span>
-        </div>
-        <p className="text-purple-600 text-xs mt-1">
-          Last updated: {lastUpdatedDate}
+    return (
+      <div className="flex flex-col items-center justify-center text-center min-h-[50vh]">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          Product not found
+        </h2>
+        <p className="text-gray-500">
+          This product might have been removed or doesn’t exist.
         </p>
       </div>
+    );
+  }
 
-      {/* Product Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Product Image */}
-        <div className="relative">
-          <div className="relative h-96 lg:h-[500px] rounded-lg overflow-hidden bg-gray-100">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-            />
-            {isLowStock && !isOutOfStock && (
-              <div className="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                Only {product.inventory} left!
-              </div>
-            )}
-            {isOutOfStock && (
-              <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-semibold">
-                Out of Stock
-              </div>
-            )}
+  // ✅ Render the product details
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-10">
+      {/* Product Title */}
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+      <p className="text-sm text-gray-500 mb-6">{product.category}</p>
+
+      {/* Product Image */}
+      <div className="w-full rounded-lg overflow-hidden shadow-sm mb-6">
+        <img
+          src={product.image || '/placeholder.png'}
+          alt={product.name}
+          className="w-full h-96 object-cover rounded-lg"
+        />
+      </div>
+
+      {/* Product Description */}
+      <div className="bg-white shadow-sm rounded-lg p-6">
+        <p className="text-gray-700 leading-relaxed mb-4">
+          {product.description || 'No description available.'}
+        </p>
+
+        {/* Price and Inventory */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6">
+          <p className="text-lg">
+            <strong className="text-gray-800">Price:</strong>{' '}
+            <span className="text-blue-600 font-semibold">
+              ₹{product.price}
+            </span>
+          </p>
+
+          <p className="text-lg">
+            <strong className="text-gray-800">Inventory:</strong>{' '}
+            <span
+              className={`font-semibold ${
+                product.inventory <= 5
+                  ? 'text-red-600'
+                  : product.inventory > 20
+                  ? 'text-green-600'
+                  : 'text-gray-800'
+              }`}
+            >
+              {product.inventory}
+            </span>
+          </p>
+        </div>
+
+        {/* Last Updated */}
+        <p className="text-sm text-gray-500 mt-6">
+          Last updated:{' '}
+          <span className="font-medium text-gray-700">
+            {new Date(product.lastUpdated).toLocaleString()}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}

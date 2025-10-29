@@ -1,105 +1,90 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Product from '@/lib/models/Product';
-import { verifyAdminKey, unauthorizedResponse } from '@/lib/utils/auth';
-import { validateProductData } from '@/lib/utils/validators';
+import dbConnect from '../../../lib/mongoose';
+import Product from '../../../lib/models/Product';
+import imagekit from '../../../lib/imagekit';
 
-// GET /api/products - Fetch all products
-export async function GET(request) {
-  try {
-    await connectDB();
+export async function GET(req) {
+  await dbConnect();
+  const url = new URL(req.url);
+  const category = url.searchParams.get('category');
+  const filter = {};
+  if (category) filter.category = category;
 
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const search = searchParams.get('search');
-
-    let query = {};
-
-    // Filter by category
-    if (category && category !== 'all') {
-      query.category = category;
-    }
-
-    // Search by name
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
-
-    const products = await Product.find(query)
-      .sort({ createdAt: -1 })
-      .lean();
-
-    return NextResponse.json({
-      success: true,
-      count: products.length,
-      data: products,
-    });
-  } catch (error) {
-    console.error('GET /api/products error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch products' },
-      { status: 500 }
-    );
-  }
+  const products = await Product.find(filter).sort({ lastUpdated: -1 }).lean();
+  return new Response(JSON.stringify(products), { status: 200 });
 }
 
-// POST /api/products - Create a new product (Admin only)
-export async function POST(request) {
+export async function POST(req) {
   try {
-    // Check admin authentication
-    if (!verifyAdminKey(request)) {
-      return unauthorizedResponse();
+    await dbConnect();
+
+    const adminKey = req.headers.get('x-admin-key');
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
-    await connectDB();
+    const body = await req.json();
 
-    const body = await request.json();
-
-    // Validate product data
-    const validation = validateProductData(body);
-    if (!validation.isValid) {
-      return NextResponse.json(
-        { success: false, errors: validation.errors },
-        { status: 400 }
-      );
+    // ✅ Validate required fields
+    if (!body.name || !body.slug || body.price == null) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
 
-    // Check if slug already exists
-    const existingProduct = await Product.findOne({ slug: body.slug });
-    if (existingProduct) {
-      return NextResponse.json(
-        { success: false, error: 'Product with this slug already exists' },
-        { status: 400 }
-      );
+    // ✅ Check for duplicate slug
+    const exists = await Product.findOne({ slug: body.slug });
+    if (exists) {
+      return new Response(JSON.stringify({ error: 'Slug already exists' }), { status: 409 });
     }
 
-    // Create product
-    const product = await Product.create({
-      ...body,
+    let finalImageUrl = 'https://via.placeholder.com/400x300?text=No+Image';
+
+    // ✅ Handle image (base64 or URL)
+    if (body.image) {
+      try {
+        if (body.image.startsWith('data:image')) {
+          // Upload base64 image to ImageKit
+          const uploadRes = await imagekit.upload({
+            file: body.image,
+            fileName: `product-${Date.now()}.jpg`,
+            folder: '/Ecoomerce',
+          });
+
+          // Generate preview version and store as main image
+          finalImageUrl = imagekit.url({
+            path: uploadRes.filePath,
+            transformation: [
+              {
+                height: 400,
+                width: 400,
+                crop: 'maintain_ratio',
+              },
+            ],
+          });
+        } else if (body.image.startsWith('http')) {
+          // If already a hosted URL
+          finalImageUrl = body.image;
+        }
+      } catch (err) {
+        console.error('❌ ImageKit upload failed:', err);
+      }
+    }
+
+    // ✅ Create product with ImageKit preview URL as image
+    const newProduct = new Product({
+      name: body.name,
+      slug: body.slug,
+      description: body.description || '',
+      price: Number(body.price),
+      category: body.category || 'general',
+      inventory: Number(body.inventory) || 0,
+      image: finalImageUrl, // 🖼️ save preview URL directly
       lastUpdated: new Date(),
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Product created successfully',
-        data: product,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error('POST /api/products error:', error);
-    
-    if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      );
-    }
+    await newProduct.save();
 
-    return NextResponse.json(
-      { success: false, error: 'Failed to create product' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify(newProduct), { status: 201 });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return new Response(JSON.stringify({ error: 'Failed to create product' }), { status: 500 });
   }
 }
