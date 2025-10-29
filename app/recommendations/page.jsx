@@ -1,7 +1,6 @@
-import connectDB from '@/lib/mongodb';
-import Product from '@/lib/models/Product';
-import AddToWishlistButton from '@/components/AddToWishlistButton';
-import Image from 'next/image';
+import dbConnect from '../../lib/mongoose';
+import Product from '../../lib/models/Product';
+import AddToWishlistButton from '../../components/AddToWishlistButton';
 
 export const metadata = {
   title: 'Product Recommendations - E-Commerce Store',
@@ -11,7 +10,7 @@ export const metadata = {
 // Server Component - Fetches data on the server
 async function getRecommendedProducts() {
   try {
-    await connectDB();
+    await dbConnect();
     
     // Get low stock products (recommendations based on urgency)
     const urgentProducts = await Product.find({ 
@@ -31,9 +30,6 @@ async function getRecommendedProducts() {
     const formatProduct = (p) => ({
       ...p,
       _id: p._id.toString(),
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      lastUpdated: p.lastUpdated.toISOString(),
     });
 
     return {
@@ -60,11 +56,7 @@ export default async function RecommendationsPage() {
         <p className="text-gray-600">
           Personalized product suggestions based on availability and popularity
         </p>
-        <div className="mt-2 inline-block bg-blue-50 border border-blue-200 px-3 py-1 rounded text-sm">
-          <span className="text-blue-800">
-            🔀 <strong>Hybrid:</strong> Server Components + Client Interactivity
-          </span>
-        </div>
+     
       </div>
 
       {/* Urgent Recommendations */}
@@ -75,7 +67,7 @@ export default async function RecommendationsPage() {
               ⚡ Limited Stock - Act Fast!
             </h2>
             <p className="text-gray-600 text-sm mt-1">
-              These products are running low. Grab them before they're gone!
+              These products are running low. Grab them before they&apos;re gone!
             </p>
           </div>
         </div>
@@ -129,25 +121,6 @@ export default async function RecommendationsPage() {
         )}
       </section>
 
-      {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">
-          🔀 About This Page (Server + Client Components)
-        </h3>
-        <p className="text-blue-800 text-sm mb-3">
-          This page demonstrates <strong>React Server Components</strong> working with 
-          Client Components. The product data is fetched on the server (fast, secure), 
-          while the "Add to Wishlist" buttons are interactive client components.
-        </p>
-        <div className="bg-white rounded p-3 text-xs space-y-1">
-          <p className="text-blue-900">
-            ✅ <strong>Server Component:</strong> Product cards (fetched server-side)
-          </p>
-          <p className="text-blue-900">
-            ✅ <strong>Client Component:</strong> "Add to Wishlist" button (interactive)
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -158,12 +131,10 @@ function ProductRecommendationCard({ product, badge, badgeColor }) {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
       {/* Image */}
       <div className="relative h-48">
-        <Image
-          src={product.image}
+        <img
+          src={product.image || '/placeholder.png'}
           alt={product.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="w-full h-full object-cover"
         />
         <div className={`absolute top-2 right-2 ${badgeColor} text-white text-xs font-semibold px-2 py-1 rounded`}>
           {badge}

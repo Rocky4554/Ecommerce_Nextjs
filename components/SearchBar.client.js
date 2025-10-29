@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import ProductCard from './ProductCard';
 
-export default function SearchBar({ initialProducts = [] }) {
+export default function SearchBar({ initialProducts = [], products }) {
   const [q, setQ] = useState('');
   const qLower = (q || '').toString().trim().toLowerCase();
 
-  const filtered = (initialProducts || []).filter((p) => {
+  const source = Array.isArray(products) ? products : initialProducts;
+  const filtered = (source || []).filter((p) => {
     // defensive defaults and coercion to string
     const name = (p && p.name) ? String(p.name).toLowerCase() : '';
     const category = (p && p.category) ? String(p.category).toLowerCase() : '';
@@ -15,7 +16,7 @@ export default function SearchBar({ initialProducts = [] }) {
   });
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="w-full">
       {/* Search Input */}
       <div className="mb-8">
         <input

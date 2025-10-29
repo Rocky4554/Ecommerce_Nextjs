@@ -1,27 +1,63 @@
-'use client';
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/admin', label: 'Admin Panel' },
-    // { href: '/recommendations', label: 'Recommendations' },
-  ];
+  // ✅ Check admin login state on mount
+  useEffect(() => {
+    async function checkAdmin() {
+      try {
+        const res = await axios.get("/api/admin/check", {
+          withCredentials: true,
+        });
+        setIsAdmin(res.data.isAdmin);
+      } catch (err) {
+        console.error("Error checking admin status:", err);
+      }
+    }
+    checkAdmin();
+  }, []);
 
+  // ✅ Logout handler
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/admin/logout", {}, { withCredentials: true });
+      setIsAdmin(false);
+      router.push("/"); // go back home
+      window.location.reload(); // refresh navbar
+    } catch (err) {
+      console.error("Error logging out:", err);
+    }
+  };
+
+  // ✅ Detect active page
   const isActive = (path) =>
-    path === '/' ? pathname === '/' : pathname.startsWith(path);
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
+
+  // ✅ Dynamic navigation links
+  const navLinks = isAdmin
+    ? [
+        { href: "/", label: "Home" },
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/admin", label: "Admin Panel" },
+      ]
+    : [{ href: "/", label: "Home" },
+      { href: "/recommendations", label: "Recommendations" }
+    ];
 
   return (
-    <nav className="bg-white border-b shadow-sm sticky top-0 z-50">
+    <nav className="bg-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* ✅ Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="bg-blue-600 text-white rounded-md p-1.5 flex items-center justify-center">
               <svg
@@ -43,68 +79,45 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex space-x-1">
+          {/* ✅ Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
                   isActive(link.href)
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                 }`}
               >
                 {link.label}
               </Link>
             ))}
+            {/* ✅ Conditional button area */}
+            {!isAdmin ? (
+              <Link
+                href="/admin/admin-login"
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive("/admin/admin-login")
+                    ? "bg-blue-700 text-white"
+                    : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                Sign in as Admin
+              </Link>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+              >
+                Logout
+              </button>
+            )}
+            
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-gray-700 hover:text-blue-600 focus:outline-none"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={
-                  isOpen
-                    ? 'M6 18L18 6M6 6l12 12' // close icon
-                    : 'M4 6h16M4 12h16M4 18h16' // menu icon
-                }
-              />
-            </svg>
-          </button>
         </div>
       </div>
-
-      {/* Mobile Dropdown */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-sm">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className={`block px-4 py-2 text-sm font-medium transition-colors ${
-                isActive(link.href)
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      )}
     </nav>
   );
 }

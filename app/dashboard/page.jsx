@@ -2,7 +2,7 @@
 import dbConnect from '../../lib/mongoose';
 import Product from '../../lib/models/Product';
 
-export const dynamic = 'force-dynamic'; // SSR: always fetch fresh data
+export const dynamic = 'force-dynamic'; 
 
 export default async function Dashboard() {
   await dbConnect();
@@ -15,10 +15,6 @@ export default async function Dashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-2">Inventory Dashboard</h1>
-      <p className="text-sm text-gray-500 mb-6">
-        This page is <strong>server-side rendered (SSR)</strong> — it always shows the most
-        up-to-date data from MongoDB.
-      </p>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import ProductForm from '../../components/ProductForm.client';
 import EditProductModal from '../../components/EditProductModal';
 
+
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [editing, setEditing] = useState(null);
@@ -54,6 +55,7 @@ export default function AdminPage() {
       if (res.status === 200) {
         alert('Product deleted successfully ✅');
         fetchProducts();
+        router.refresh();
       } else {
         alert('Failed to delete product ❌');
       }
