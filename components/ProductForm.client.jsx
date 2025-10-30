@@ -55,7 +55,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
       if (initial && initial._id) {
         res = await axios.put(`/api/products/${initial._id}`, payload, { headers });
         toast.success("Product updated successfully!");
-        router.refresh();
       } else {
         res = await axios.post("/api/products", payload, { headers });
         toast.success("Product added successfully!");
@@ -69,10 +68,14 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
           image: "",
         });
       }
+      
+      // ✅ Force refresh the current route to get updated data
+      router.refresh();
+      
       onCreatedOrUpdated && onCreatedOrUpdated(res.data);
     } catch (err) {
       const errorMsg = err.response?.data?.error || err.message || "Something went wrong";
-      toast.error( errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
       toast.dismiss(loadingId); 
@@ -92,7 +95,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         your store.
       </p>
 
-    
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-700">
@@ -118,7 +120,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         </div>
       </div>
 
-    
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-700">Category</label>
@@ -143,7 +144,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         </div>
       </div>
 
-    
       <div>
         <label className="text-sm font-medium text-gray-700">Inventory</label>
         <input
@@ -156,7 +156,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         />
       </div>
 
-      
       <div>
         <label className="text-sm font-medium text-gray-700">
           Product Image
@@ -180,7 +179,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         )}
       </div>
 
-
       <div>
         <label className="text-sm font-medium text-gray-700">Description</label>
         <textarea
@@ -192,7 +190,6 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         />
       </div>
 
-  
       <div className="flex items-center justify-between">
         <button
           type="submit"

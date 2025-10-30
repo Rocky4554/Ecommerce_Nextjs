@@ -1,7 +1,7 @@
 import dbConnect from "../../../lib/mongoose";
 import Product from "../../../lib/models/Product";
 import imagekit from "../../../lib/imagekit";
-import axios from "axios";
+
 import { revalidatePath } from 'next/cache';
 
 export async function GET(req) {

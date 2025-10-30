@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import ProductForm from '../../components/ProductForm.client';
 import EditProductModal from '../../components/EditProductModal';
 
@@ -14,7 +15,6 @@ export default function AdminPage() {
   const [deleting, setDeleting] = useState(false);
   const [activeTab, setActiveTab] = useState('add'); 
   const router = useRouter();
-
 
   async function fetchProducts() {
     try {
@@ -32,18 +32,18 @@ export default function AdminPage() {
     fetchProducts();
   }, []);
 
-  
   function handleRefresh() {
     fetchProducts();
     setEditing(null);
     setIsModalOpen(false);
   }
 
-
   async function handleDelete(id) {
     const confirmDelete = confirm('Are you sure you want to delete this product?');
     if (!confirmDelete) return;
 
+    const loadingId = toast.loading('Deleting product...');
+    
     try {
       setDeleting(true);
       const res = await axios.delete(`/api/products/${id}`, {
@@ -53,25 +53,24 @@ export default function AdminPage() {
       });
 
       if (res.status === 200) {
-        alert('Product deleted successfully ');
+        toast.success('Product deleted successfully!');
         fetchProducts();
         router.refresh();
       } else {
-        alert('Failed to delete product ');
+        toast.error('Failed to delete product');
       }
     } catch (err) {
       console.error('Delete product error:', err);
-      alert('Error deleting product ');
+      toast.error('Error deleting product');
     } finally {
       setDeleting(false);
+      toast.dismiss(loadingId);
     }
   }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-  
       <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">Admin Panel</h1>
-
 
       <div className="flex justify-center mb-8">
         <div className="inline-flex shadow-lg rounded-lg overflow-hidden">
@@ -99,7 +98,6 @@ export default function AdminPage() {
       </div>
 
       <div className="mt-8">
-        
         {activeTab === 'add' && (
           <div className="animate-fadeIn">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Product</h2>
@@ -107,7 +105,6 @@ export default function AdminPage() {
           </div>
         )}
 
-    
         {activeTab === 'list' && (
           <section className="animate-fadeIn">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">All Products</h2>
@@ -127,7 +124,6 @@ export default function AdminPage() {
                     key={p._id}
                     className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
                   >
-                 
                     <div className="w-full h-48 bg-gray-100">
                       <img
                         src={p.image || '/placeholder.png'}
@@ -136,7 +132,6 @@ export default function AdminPage() {
                       />
                     </div>
 
-                 
                     <div className="p-5">
                       <h3 className="text-lg font-semibold text-gray-800">{p.name}</h3>
                       <p className="text-sm text-gray-500 mb-1">{p.category}</p>
@@ -144,32 +139,32 @@ export default function AdminPage() {
                       <p className="text-xs text-gray-500">Stock: {p.inventory}</p>
 
                       <div className="flex gap-3 mt-4">
-                      <button
-                        onClick={() => {
-                          setEditing(p);
-                          setIsModalOpen(true);
-                        }}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
-                      >
-                        Edit
-                      </button>
-
-                      <Link href={`/products/${p.slug}`} passHref>
-                        <button className="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition">
-                          View
+                        <button
+                          onClick={() => {
+                            setEditing(p);
+                            setIsModalOpen(true);
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+                        >
+                          Edit
                         </button>
-                      </Link>
 
-                      <button
-                        onClick={() => handleDelete(p._id)}
-                        disabled={deleting}
-                        className={`${
-                          deleting ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
-                        } text-white px-4 py-2 rounded-lg text-sm transition`}
-                      >
-                        {deleting ? 'Deleting...' : 'Delete'}
-                      </button>
-                    </div>
+                        <Link href={`/products/${p.slug}`} passHref>
+                          <button className="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition">
+                            View
+                          </button>
+                        </Link>
+
+                        <button
+                          onClick={() => handleDelete(p._id)}
+                          disabled={deleting}
+                          className={`${
+                            deleting ? 'bg-red-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                          } text-white px-4 py-2 rounded-lg text-sm transition`}
+                        >
+                          {deleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -179,7 +174,6 @@ export default function AdminPage() {
         )}
       </div>
 
-  
       {isModalOpen && editing && (
         <EditProductModal
           product={editing}

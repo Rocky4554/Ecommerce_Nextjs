@@ -2,8 +2,8 @@ import dbConnect from "../../../../lib/mongoose";
 import Product from "../../../../lib/models/Product";
 import mongoose from "mongoose";
 import imagekit from "../../../../lib/imagekit";
-import axios from "axios";
-import { revalidatePath } from "next/cache";
+import { revalidatePath } from 'next/cache';
+
 
 export async function GET(req, context) {
   await dbConnect();
@@ -71,21 +71,12 @@ export async function PUT(req, context) {
         status: 404,
       });
     }
-     // on demand revalidation
-    revalidatePath("/products/" + updatedProduct.slug);
 
+    // ✅ Revalidate homepage and product page
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/revalidate`,
-        { path: "/" },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-admin-key": process.env.ADMIN_KEY,
-          },
-        }
-      );
-      console.log("Revalidation triggered for /");
+      revalidatePath("/"); // Homepage
+      revalidatePath(`/products/${updatedProduct.slug}`); // Individual product page
+      console.log("Revalidation triggered for / and /products/" + updatedProduct.slug);
     } catch (revalError) {
       console.error("Failed to revalidate:", revalError.message);
     }
@@ -125,22 +116,17 @@ export async function DELETE(req, context) {
       });
     }
 
+    const productSlug = product.slug; // Store slug before deletion
+
     await Product.findByIdAndDelete(identifier);
 
+    // ✅ Revalidate homepage and product page
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/revalidate`,
-        { path: "/" },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-admin-key": process.env.ADMIN_KEY,
-          },
-        }
-      );
-      console.log("Revalidation triggered for /");
+      revalidatePath("/"); // Homepage
+      revalidatePath(`/products/${productSlug}`); // Individual product page
+      console.log("Revalidation triggered for / and /products/" + productSlug);
     } catch (revalError) {
-      console.error(" Failed to revalidate:", revalError.message);
+      console.error("Failed to revalidate:", revalError.message);
     }
 
     return new Response(
