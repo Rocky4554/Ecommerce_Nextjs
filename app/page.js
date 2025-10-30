@@ -2,7 +2,7 @@ import dbConnect from '../lib/mongoose';
 import Product from '../lib/models/Product';
 import ProductsClient from '../components/ProductsClient.jsx';
 
-// SSG: ensure static generation at build time
+// ensure static generation at build time
 export const dynamic = 'force-static';
 
 export default async function Home() {

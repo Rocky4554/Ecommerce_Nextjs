@@ -111,7 +111,7 @@ export async function POST(req) {
     return new Response(JSON.stringify(newProduct), { status: 201 });
   } catch (error) {
     console.error("Error creating product:", error);
-    return new Response(JSON.stringify({ error: "Failed to create product" }), {
+    return new Response(JSON.stringify({ error:"OOps Failed:Please check all field is filled correctly , Try again " }), {
       status: 500,
     });
   }

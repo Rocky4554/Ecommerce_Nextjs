@@ -71,6 +71,8 @@ export async function PUT(req, context) {
         status: 404,
       });
     }
+     // on demand revalidation
+    revalidatePath("/products/" + updatedProduct.slug);
 
     try {
       await axios.post(
@@ -87,8 +89,6 @@ export async function PUT(req, context) {
     } catch (revalError) {
       console.error("Failed to revalidate:", revalError.message);
     }
-
-    revalidatePath("/products/" + updatedProduct.slug);
 
     return new Response(JSON.stringify(updatedProduct), { status: 200 });
   } catch (err) {

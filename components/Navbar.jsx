@@ -11,7 +11,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ✅ Check admin login state on mount
+  
   useEffect(() => {
     async function checkAdmin() {
       try {
@@ -26,32 +26,32 @@ export default function Navbar() {
     checkAdmin();
   }, []);
 
-  // ✅ Logout handler
   const handleLogout = async () => {
     try {
       await axios.post("/api/admin/logout", {}, { withCredentials: true });
       setIsAdmin(false);
-      router.push("/"); // go back home
-      window.location.reload(); // refresh navbar
+      router.push("/");
+      window.location.reload();
     } catch (err) {
       console.error("Error logging out:", err);
     }
   };
 
-  // ✅ Detect active page
+  
   const isActive = (path) =>
     path === "/" ? pathname === "/" : pathname.startsWith(path);
 
-  // ✅ Dynamic navigation links
+  
   const navLinks = isAdmin
     ? [
         { href: "/", label: "Home" },
         { href: "/dashboard", label: "Dashboard" },
         { href: "/admin", label: "Admin Panel" },
       ]
-    : [{ href: "/", label: "Home" },
-      { href: "/recommendations", label: "Recommendations" }
-    ];
+    : [
+        { href: "/", label: "Home" },
+        { href: "/recommendations", label: "Recommendations" },
+      ];
 
   return (
     <nav className="bg-white sticky top-0 z-50">
@@ -59,21 +59,11 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* ✅ Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-blue-600 text-white rounded-md p-1.5 flex items-center justify-center">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                />
-              </svg>
-            </div>
+            <img
+              src="/logo.png"
+              alt="E-Commerce Store Logo"
+              className="w-8 h-8 object-contain border-2 rounded-full"
+            />
             <span className="text-lg font-semibold text-gray-800">
               E-Commerce Store
             </span>
@@ -94,7 +84,8 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            {/* ✅ Conditional button area */}
+
+          
             {!isAdmin ? (
               <Link
                 href="/admin/admin-login"
@@ -114,7 +105,6 @@ export default function Navbar() {
                 Logout
               </button>
             )}
-            
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
   const [form, setForm] = useState(
@@ -15,7 +16,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
       image: "",
     }
   );
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   function setField(k, v) {
@@ -35,7 +36,9 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
 
   async function submit(e) {
     e.preventDefault();
-    setMessage("Saving...");
+    setLoading(true);
+    toast.loading("Saving product...");
+
     try {
       const payload = {
         name: form.name,
@@ -56,10 +59,11 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         res = await axios.put(`/api/products/${initial._id}`, payload, {
           headers,
         });
-        setMessage("✅ Product updated successfully");
+        toast.success("✅ Product updated successfully!");
+        router.refresh();
       } else {
         res = await axios.post("/api/products", payload, { headers });
-        setMessage("✅ Product created successfully");
+        toast.success("✅ Product added successfully!");
         setForm({
           name: "",
           slug: "",
@@ -70,12 +74,15 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
           image: "",
         });
       }
+
       onCreatedOrUpdated && onCreatedOrUpdated(res.data);
-      router.refresh();
     } catch (err) {
       const errorMsg =
         err.response?.data?.error || err.message || "Something went wrong";
-      setMessage("❌ " + errorMsg);
+      toast.error("❌ " + errorMsg);
+    } finally {
+      setLoading(false);
+      toast.dismiss(); 
     }
   }
 
@@ -196,21 +203,15 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
       <div className="flex items-center justify-between">
         <button
           type="submit"
-          className="bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          disabled={loading}
+          className="bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-70"
         >
-          {initial ? "Update Product" : "Create Product"}
+          {loading
+            ? "Saving..."
+            : initial
+            ? "Update Product"
+            : "Create Product"}
         </button>
-        <p
-          className={`text-sm font-medium ${
-            message.startsWith("✅")
-              ? "text-green-600"
-              : message.startsWith("❌")
-              ? "text-red-600"
-              : "text-gray-600"
-          }`}
-        >
-          {message}
-        </p>
       </div>
     </form>
   );
