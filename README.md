@@ -317,7 +317,7 @@ Admin routes modify the database via secured API calls.
 ## 🖼️ Screenshots
 
 ### 🏠 Home Page (SSG)
-![Home Page](./public/screenshots/home-page.png)
+![Home Page](./public/screenshots/home.png)
 
 ### 📦 Product Detail Page (ISR)
 ![Product Detail Page](./public/screenshots/product-details.png)
@@ -332,7 +332,7 @@ Admin routes modify the database via secured API calls.
 ![Admin Panel](./public/screenshots/admin-panel.png)
 
 ### ➕ Product Add or Edit
-![Product Add or Edit](./public/screenshots/product-form.png)
+![Product Add or Edit](./public/screenshots/add-remove.png)
 
 ### 📱 Mobile Responsive Design
 ![Mobile Responsive Design](./public/screenshots/mobile-responsive.png)
