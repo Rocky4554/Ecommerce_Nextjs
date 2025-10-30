@@ -17,14 +17,14 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
       }`}
       onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
-      {/* Modal Container - Scrollable & Constrained */}
+     
       <div
         className="relative bg-white w-full max-w-3xl max-h-full rounded-2xl shadow-xl border border-gray-100 
                    flex flex-col overflow-hidden
                    animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+       
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-2xl font-semibold text-gray-800">Edit Product</h2>
           <button
@@ -35,7 +35,7 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
           </button>
         </div>
 
-        {/* Scrollable Body */}
+  
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-2xl mx-auto">
             <ProductForm

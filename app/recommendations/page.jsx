@@ -7,19 +7,18 @@ export const metadata = {
   description: 'Personalized product recommendations',
 };
 
-// Server Component - Fetches data on the server
 async function getRecommendedProducts() {
   try {
     await dbConnect();
     
-    // Get low stock products (recommendations based on urgency)
+  
     const urgentProducts = await Product.find({ 
       inventory: { $gt: 0, $lt: 10 } 
     })
       .limit(3)
       .lean();
 
-    // Get popular products (highest inventory - best sellers)
+  
     const popularProducts = await Product.find({ 
       inventory: { $gte: 10 } 
     })
@@ -42,13 +41,13 @@ async function getRecommendedProducts() {
   }
 }
 
-// Server Component
+
 export default async function RecommendationsPage() {
   const { urgent, popular } = await getRecommendedProducts();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+    
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Recommended for You
@@ -59,7 +58,7 @@ export default async function RecommendationsPage() {
      
       </div>
 
-      {/* Urgent Recommendations */}
+   
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -90,7 +89,7 @@ export default async function RecommendationsPage() {
         )}
       </section>
 
-      {/* Popular Recommendations */}
+    
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -125,11 +124,11 @@ export default async function RecommendationsPage() {
   );
 }
 
-// Server Component for Product Card
+
 function ProductRecommendationCard({ product, badge, badgeColor }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-      {/* Image */}
+ 
       <div className="relative h-48">
         <img
           src={product.image || '/placeholder.png'}
@@ -141,7 +140,7 @@ function ProductRecommendationCard({ product, badge, badgeColor }) {
         </div>
       </div>
 
-      {/* Content */}
+
       <div className="p-4">
         <div className="mb-2">
           <span className="inline-block bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -166,7 +165,6 @@ function ProductRecommendationCard({ product, badge, badgeColor }) {
           </span>
         </div>
 
-        {/* Client Component for Interactivity */}
         <AddToWishlistButton productId={product._id} productName={product.name} />
       </div>
     </div>

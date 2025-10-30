@@ -10,12 +10,12 @@ export default function AddToWishlistButton({ productId, productName }) {
     setLoading(true);
     await new Promise((res) => setTimeout(res, 400));
     setAdded((prev) => {
-      // Toggle: if removing, show toast/remove; if adding, show toast/add
+ 
       if (prev) {
-        toast.info(`❌ Removed ${productName} from Wishlist`);
+        toast.info(`Removed ${productName} from Wishlist`);
         return false;
       } else {
-        toast.success(`✔️ Added ${productName} to Wishlist!`);
+        toast.success(`Added ${productName} to Wishlist!`);
         return true;
       }
     });

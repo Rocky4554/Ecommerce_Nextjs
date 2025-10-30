@@ -57,7 +57,7 @@ export default function Navbar() {
     <nav className="bg-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* ✅ Logo */}
+         
           <Link href="/" className="flex items-center space-x-2">
             <img
               src="/logo.png"
@@ -69,7 +69,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* ✅ Desktop Navigation */}
+      
           <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
               <Link

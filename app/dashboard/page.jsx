@@ -29,7 +29,7 @@ export default async function Dashboard() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-4 flex flex-col items-center">
-          {/* Use {'>'} to avoid JSX parse error */}
+        
           <h3 className="text-lg font-semibold text-gray-700">
             High Stock ({'>'}20)
           </h3>

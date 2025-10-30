@@ -14,7 +14,7 @@ export default function ProductCard({ product }) {
         hover:-translate-y-2 hover:shadow-xl
       "
     >
-      {/* Product Image */}
+  
       <div className="relative w-full h-48 bg-gray-100">
         <img
           src={imageSrc}
@@ -26,7 +26,7 @@ export default function ProductCard({ product }) {
         />
       </div>
 
-      {/* Product Info */}
+ 
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-1">
           {product.name}

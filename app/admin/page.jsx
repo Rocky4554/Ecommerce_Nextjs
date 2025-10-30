@@ -12,10 +12,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState('add'); // 'add' or 'list'
+  const [activeTab, setActiveTab] = useState('add'); 
   const router = useRouter();
 
-  // Fetch all products
+
   async function fetchProducts() {
     try {
       setLoading(true);
@@ -32,14 +32,14 @@ export default function AdminPage() {
     fetchProducts();
   }, []);
 
-  // Called after a product is created or edited
+  
   function handleRefresh() {
     fetchProducts();
     setEditing(null);
     setIsModalOpen(false);
   }
 
-  // Delete Product
+
   async function handleDelete(id) {
     const confirmDelete = confirm('Are you sure you want to delete this product?');
     if (!confirmDelete) return;
@@ -53,15 +53,15 @@ export default function AdminPage() {
       });
 
       if (res.status === 200) {
-        alert('Product deleted successfully ✅');
+        alert('Product deleted successfully ');
         fetchProducts();
         router.refresh();
       } else {
-        alert('Failed to delete product ❌');
+        alert('Failed to delete product ');
       }
     } catch (err) {
       console.error('Delete product error:', err);
-      alert('Error deleting product ❌');
+      alert('Error deleting product ');
     } finally {
       setDeleting(false);
     }
@@ -69,10 +69,10 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
+  
       <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">Admin Panel</h1>
 
-      {/* Tab Buttons */}
+
       <div className="flex justify-center mb-8">
         <div className="inline-flex shadow-lg rounded-lg overflow-hidden">
           <button
@@ -93,14 +93,13 @@ export default function AdminPage() {
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
-            Edit and see all products
+            Edit/Delete products
           </button>
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="mt-8">
-        {/* Add Product Form */}
+        
         {activeTab === 'add' && (
           <div className="animate-fadeIn">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Product</h2>
@@ -108,7 +107,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Product List */}
+    
         {activeTab === 'list' && (
           <section className="animate-fadeIn">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">All Products</h2>
@@ -128,7 +127,7 @@ export default function AdminPage() {
                     key={p._id}
                     className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
                   >
-                    {/* Product Image */}
+                 
                     <div className="w-full h-48 bg-gray-100">
                       <img
                         src={p.image || '/placeholder.png'}
@@ -137,7 +136,7 @@ export default function AdminPage() {
                       />
                     </div>
 
-                    {/* Product Details */}
+                 
                     <div className="p-5">
                       <h3 className="text-lg font-semibold text-gray-800">{p.name}</h3>
                       <p className="text-sm text-gray-500 mb-1">{p.category}</p>
@@ -180,7 +179,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* Edit Modal */}
+  
       {isModalOpen && editing && (
         <EditProductModal
           product={editing}

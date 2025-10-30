@@ -25,9 +25,15 @@ export async function POST(req) {
       });
     }
 
-    const body = await req.json();
+    // const body = await req.json();
 
-   
+    let body;
+    if (typeof req.json === "function") {
+      body = await req.json();
+    } else {
+      body = req.body || {};
+    }
+
     if (!body.name || !body.slug || body.price == null) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -35,7 +41,6 @@ export async function POST(req) {
       );
     }
 
- 
     const exists = await Product.findOne({ slug: body.slug });
     if (exists) {
       return new Response(JSON.stringify({ error: "Slug already exists" }), {
@@ -45,7 +50,6 @@ export async function POST(req) {
 
     let finalImageUrl = "https://via.placeholder.com/400x300?text=No+Image";
 
-  
     if (body.image) {
       try {
         if (body.image.startsWith("data:image")) {
@@ -56,7 +60,6 @@ export async function POST(req) {
             folder: "/Ecoomerce",
           });
 
-          
           finalImageUrl = imagekit.url({
             path: uploadRes.filePath,
             transformation: [
@@ -68,7 +71,6 @@ export async function POST(req) {
             ],
           });
         } else if (body.image.startsWith("http")) {
-          
           finalImageUrl = body.image;
         }
       } catch (err) {
@@ -76,7 +78,6 @@ export async function POST(req) {
       }
     }
 
-   
     const newProduct = new Product({
       name: body.name,
       slug: body.slug,
@@ -84,15 +85,15 @@ export async function POST(req) {
       price: Number(body.price),
       category: body.category || "general",
       inventory: Number(body.inventory) || 0,
-      image: finalImageUrl, 
+      image: finalImageUrl,
       lastUpdated: new Date(),
     });
 
     await newProduct.save();
 
     // on demand revalidation
+    if (process.env.NEXT_PUBLIC_BASE_URL) {
     try {
-      
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/revalidate`,
         { path: "/" },
@@ -107,12 +108,19 @@ export async function POST(req) {
     } catch (revalError) {
       console.error("Failed to revalidate:", revalError.message);
     }
+  }
 
     return new Response(JSON.stringify(newProduct), { status: 201 });
   } catch (error) {
     console.error("Error creating product:", error);
-    return new Response(JSON.stringify({ error:"OOps Failed:Please check all field is filled correctly , Try again " }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        error:
+          "OOps Failed:Please check all field is filled correctly , Try again ",
+      }),
+      {
+        status: 500,
+      }
+    );
   }
 }

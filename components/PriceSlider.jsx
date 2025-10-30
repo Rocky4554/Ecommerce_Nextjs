@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from "react";
-//please read with patience code is messy here
+
 
 const DualRangeSlider = ({ min = 0, max = 100000, priceRange, onPriceChange }) => {
   const [dragging, setDragging] = useState(null);

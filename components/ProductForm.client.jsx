@@ -54,11 +54,11 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
       let res;
       if (initial && initial._id) {
         res = await axios.put(`/api/products/${initial._id}`, payload, { headers });
-        toast.success("✔ Product updated successfully!");
+        toast.success("Product updated successfully!");
         router.refresh();
       } else {
         res = await axios.post("/api/products", payload, { headers });
-        toast.success("✔ Product added successfully!");
+        toast.success("Product added successfully!");
         setForm({
           name: "",
           slug: "",
@@ -72,10 +72,10 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
       onCreatedOrUpdated && onCreatedOrUpdated(res.data);
     } catch (err) {
       const errorMsg = err.response?.data?.error || err.message || "Something went wrong";
-      toast.error("❌ " + errorMsg);
+      toast.error( errorMsg);
     } finally {
       setLoading(false);
-      toast.dismiss(loadingId); // Only dismiss the loading toast
+      toast.dismiss(loadingId); 
     }
   }
 
@@ -92,7 +92,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         your store.
       </p>
 
-      {/* Name & Slug */}
+    
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-700">
@@ -118,7 +118,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         </div>
       </div>
 
-      {/* Category & Price */}
+    
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium text-gray-700">Category</label>
@@ -143,7 +143,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         </div>
       </div>
 
-      {/* Inventory */}
+    
       <div>
         <label className="text-sm font-medium text-gray-700">Inventory</label>
         <input
@@ -156,7 +156,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         />
       </div>
 
-      {/* Image Upload */}
+      
       <div>
         <label className="text-sm font-medium text-gray-700">
           Product Image
@@ -180,7 +180,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         )}
       </div>
 
-      {/* Description */}
+
       <div>
         <label className="text-sm font-medium text-gray-700">Description</label>
         <textarea
@@ -192,7 +192,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         />
       </div>
 
-      {/* Submit Button */}
+  
       <div className="flex items-center justify-between">
         <button
           type="submit"

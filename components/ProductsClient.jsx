@@ -1,8 +1,9 @@
+
 'use client';
 
 import SearchBar from './SearchBar.client';
 import Sidebar from './Sidebar';
-import Pagination from './Pagination'; // ✅ new import
+import Pagination from './Pagination'; 
 import { useProductFilters } from '../lib/actions/useProducts';
 
 export default function ProductsClient({ initialProducts }) {
@@ -17,7 +18,7 @@ export default function ProductsClient({ initialProducts }) {
     handleResetFilters,
     minPrice,
     maxPrice,
-    visible, // 👈 filtered + paginated products
+    visible, 
     totalPages,
     currentPage,
     handlePageChange,
@@ -25,10 +26,10 @@ export default function ProductsClient({ initialProducts }) {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <main className="grid grid-cols-[280px_1fr] flex-1 px-5 py-8 gap-6 max-w-[1600px] mx-auto w-full">
+      <main className="grid grid-cols-1 lg:grid-cols-[280px_1fr] flex-1 px-3 sm:px-5 py-4 sm:py-8 gap-4 sm:gap-6 max-w-[1600px] mx-auto w-full">
         
-        {/* Sidebar */}
-        <aside className="w-[280px] bg-white rounded-lg shadow-md p-2 h-fit sticky top-24 self-start">
+        
+        <aside className="hidden lg:block w-[280px] bg-white rounded-lg shadow-md p-2 h-fit sticky top-24 self-start">
           <Sidebar
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
@@ -43,18 +44,21 @@ export default function ProductsClient({ initialProducts }) {
           />
         </aside>
 
-        {/* Main Content */}
-        <section className="min-w-0 bg-white rounded-lg shadow-md p-6 min-h-[80vh] flex flex-col">
-          <div className="mb-8">
+      
+        <section className="min-w-0 bg-white rounded-lg shadow-md p-4 sm:p-6 min-h-[80vh] flex flex-col w-full">
+   
+          <div className="mb-6 sm:mb-8">
             <SearchBar initialProducts={initialProducts} products={visible} />
           </div>
 
-          {/* ✅ Pagination Component */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+        
+          <div className="flex-1">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
         </section>
       </main>
     </div>
