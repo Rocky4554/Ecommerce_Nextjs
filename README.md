@@ -10,13 +10,13 @@ Users can browse and view products, while administrators can securely manage pro
 
 The goal of this project is to showcase how different **Next.js rendering methods** can be used efficiently within a single e-commerce system.
 
--  **Home Page** → Static Site Generation (SSG)  
--  **Product Details Page** → Incremental Static Regeneration (ISR)  
--  **Dashboard Page** → Server-Side Rendering (SSR)  
--  **Admin Panel** → Client-Side Rendering (CSR)
--  **Recommendations Page** → React Server Components
+- **Home Page** → Static Site Generation (SSG)  
+- **Product Details Page** → Incremental Static Regeneration (ISR)  
+- **Dashboard Page** → Server-Side Rendering (SSR)  
+- **Admin Panel** → Client-Side Rendering (CSR)
+- **Recommendations** → Hybrid/React Server Components
 
-The app includes a frontend built with **React + Tailwind CSS**, and a backend implemented using **Next.js API routes** connected to **MongoDB** for persistent storage.
+The app includes a frontend built with **React + Tailwind CSS**, and a backend implemented using **Next.js API routes** connected to **MongoDB** for persistent storage.Test cases are implemented using **Jest** and **mongodb-memory-server** for in-memory database testing.
 
 ---
 
@@ -219,6 +219,15 @@ The application will start on http://localhost:3000
 3. Check the terminal for any error messages
 4. Test database connection by accessing admin panel
 
+### Step 8: Run Tests
+
+```bash
+# Run test cases
+npm test
+```
+
+Test cases are implemented using **Jest** and **mongodb-memory-server** for in-memory database testing.
+
 ---
 
 ## 🗃️ Database Model (MongoDB)
@@ -249,6 +258,7 @@ Product Schema used in the application:
 | 📦 Product Detail | `/products/[slug]` | ISR (Incremental Static Regeneration) | Regenerates product pages every 60s for dynamic updates like stock or price. |
 | 📊 Dashboard | `/dashboard` | SSR (Server-Side Rendering) | Requires real-time inventory updates — always serves fresh data. |
 | 🔑 Admin Panel | `/admin` | CSR (Client-Side Rendering) | Enables form handling, data fetching, and dynamic interactivity securely on the client side. |
+| 🎯 Recommendations | `/recommendations` | RSC (React Server Components) | Hybrid approach combining server-side data fetching with client-side interactivity. |
 
 ---
 
@@ -356,8 +366,8 @@ Admin routes modify the database via secured API calls.
 
 **Raunak Kumar**
 
-📧 Email: kumarraunak085@gmail.com  
-🌐 GitHub: https://github.com/Rocky4554
+📧 Email: your.email@example.com  
+🌐 GitHub: https://github.com/your-github  
 📅 Date: 30 October 2025
 
 ---
