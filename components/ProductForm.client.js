@@ -37,8 +37,7 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
   async function submit(e) {
     e.preventDefault();
     setLoading(true);
-    toast.loading("Saving product...");
-
+    const loadingId = toast.loading("Saving product...");
     try {
       const payload = {
         name: form.name,
@@ -49,21 +48,17 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
         inventory: Number(form.inventory),
         image: form.image || "",
       };
-
       const headers = {
         "x-admin-key": process.env.NEXT_PUBLIC_ADMIN_KEY || "",
       };
-
       let res;
       if (initial && initial._id) {
-        res = await axios.put(`/api/products/${initial._id}`, payload, {
-          headers,
-        });
-        toast.success("✅ Product updated successfully!");
+        res = await axios.put(`/api/products/${initial._id}`, payload, { headers });
+        toast.success("✔ Product updated successfully!");
         router.refresh();
       } else {
         res = await axios.post("/api/products", payload, { headers });
-        toast.success("✅ Product added successfully!");
+        toast.success("✔ Product added successfully!");
         setForm({
           name: "",
           slug: "",
@@ -74,15 +69,13 @@ export default function ProductForm({ onCreatedOrUpdated, initial = null }) {
           image: "",
         });
       }
-
       onCreatedOrUpdated && onCreatedOrUpdated(res.data);
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.error || err.message || "Something went wrong";
+      const errorMsg = err.response?.data?.error || err.message || "Something went wrong";
       toast.error("❌ " + errorMsg);
     } finally {
       setLoading(false);
-      toast.dismiss(); 
+      toast.dismiss(loadingId); // Only dismiss the loading toast
     }
   }
 
