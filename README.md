@@ -332,7 +332,7 @@ Admin routes modify the database via secured API calls.
 ![Admin Panel](./public/screenshots/admin-panel.png)
 
 ### ➕ Product Add or Edit
-![Product Add or Edit](./public/screenshots/add-remove.png)
+![Product Add or Edit](./public/screenshots/add-removee.png)
 
 ### 📱 Mobile Responsive Design
 ![Mobile Responsive Design](./public/screenshots/mobile-responsive.png)
